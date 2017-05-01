@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!--/****************************************************************************
+ *   Copyright (c) 2017 Sarah Gibson. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *  notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *  notice, this list of conditions and the following disclaimer in
+ *  the documentation and/or other materials provided with the
+ *  distribution.
+ * 3. Neither the name ATLFlight nor the names of its contributors may be
+ *  used to endorse or promote products derived from this software
+ *  without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY
+ * THIS LICENSE.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+ * BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ ****************************************************************************/-->
+
+<Configuration>
+ <DeviceProfile version="1.2">
+    <StereoRig  name="A-0"  >
+      <CameraLeft>
+        <Calibration size="640 480" principal_point="319.861969 232.528732" focal_length="423.759888 424.214508" fishEye="false" radial_distortion="-0.014799 -0.056893 -0.005039 0.000074 0.000000 0.000000 0.000000 0.000000"></Calibration>
+        <RMSD value="0.469486" numViews="13" numPoints="572" />
+        <Angles fovX="74.1" fovY="59.0" solidSr="1.2048786"  solidSquDeg="3955.4" />
+      </CameraLeft>
+      <CameraRight>
+      <Calibration size="640 480" principal_point="321.181702 233.414154" focal_length="423.935425 424.628632" fishEye="false" radial_distortion="-0.015989 -0.053211 -0.005696 -0.001471 0.000000 0.000000 0.000000 0.000000"></Calibration>
+        <RMSD value="0.397059" numViews="13" numPoints="572" />
+        <Angles fovX="74.1" fovY="58.9" solidSr="1.2048786"  solidSquDeg="3955.4" />
+      </CameraRight>
+      <Pose translation="-0.078011 -0.002862 0.000449" rotation="0.000002 -0.011940 0.080343" ln="-0.078080 0.000273 0.000915   0.000002 -0.011940 0.080343" />
+      <RMSD value="0.431541" numViews="13" numPoints="572" />
+      <!-- translation distance = 0.078064 -->
+      <!-- rotation angle = 0.0812257 rad, 4.65 deg -->
+      <!-- rotation matrix = 0.9967030 -0.0802550 -0.0119272 0.0802550 0.9967743 -0.0004816 0.0119274 -0.0004772 0.9999288 -->
+      <CamRotations left="-0.000224 -0.017692 0.043668"   right="0.000224 -0.005752 -0.036674" angles="2.7 2.1" />
+      <Camera comment="depthCamera" baseLine="0.078064" fB="32.678059" >
+        <Calibration size="640 480" principal_point="328.127777 226.181198" focal_length="418.604004 418.604004" radial_distortion="0 0 0 0 0 0 0 0" />
+      </Camera>
+    </StereoRig>
+  </DeviceProfile>
+</Configuration>
