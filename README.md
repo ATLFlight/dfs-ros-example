@@ -204,6 +204,8 @@ rostopic list
 rostopic hz /camera/depth/image_raw
 ```
 
-When running on the GPU at VGA resolution with 32 disparity levels, you should see a rate of around 3 Hz. 
+When running on the GPU at VGA resolution with 32 disparity levels, you should see a rate of around 2.5-3 Hz. 
+
+Note that in the current implementation, the depth processing blocks the getting of the next camera frame (see Snapdragon::DfsManager::DfsCamProcessingMain()). As a result, you will see the same frame rate for the raw images as for the depth images. To get raw camera frames at the full frame rate (e.g. 30 Hz) without depth images, comment out the call to mvDFS_GetDepths() and rebuild.
 
 To further verify the functionality, a ROS visualization tool like RViz can be used to view the image topics (e.g. /camera/depth/image_raw for the depth image, or /left/image_raw for the raw left stereo image).
