@@ -47,9 +47,6 @@ namespace Snapdragon {
     // frame rate of cameras (valid values: 30, 60, 90)
     int32_t frame_rate;
 
-    // downsample cameras by this factor (since frame rate cannot be set to arbitrary values)
-    int32_t downsample_factor;
-    
     // exposure time of cameras
     float exposure_time;
     

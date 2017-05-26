@@ -32,7 +32,6 @@
 # ****************************************************************************/
 
 frame_rate: 30
-downsample_factor: 6 #vga->6, qvga->2
 exposure_time: 0.16
 gain: 0.2
 use_gpu: true

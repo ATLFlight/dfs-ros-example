@@ -252,7 +252,6 @@ void Snapdragon::RosNodeDfs::ReadRosParams()
 {  
   ros::param::param<std::string>("~config_filename", ros_params_.filename, "");
   ros::param::param("~frame_rate", ros_params_.frame_rate, 30);
-  ros::param::param("~downsample_factor", ros_params_.downsample_factor, 2);
   ros::param::param<float>("~exposure_time", ros_params_.exposure_time, 0.16);
   ros::param::param<float>("~gain", ros_params_.gain, 0.6);
   ros::param::param<bool>("~use_gpu", ros_params_.use_gpu, 0);
@@ -266,7 +265,6 @@ void Snapdragon::RosNodeDfs::PrintRosParams()
 {  
   ROS_INFO_STREAM("Snapdragon::RosNodeDfs: config filename = " << ros_params_.filename);
   ROS_INFO_STREAM("Snapdragon::RosNodeDfs: frame_rate = " << ros_params_.frame_rate);
-  ROS_INFO_STREAM("Snapdragon::RosNodeDfs: downsample_factor = " << ros_params_.downsample_factor);
   ROS_INFO_STREAM("Snapdragon::RosNodeDfs: Stereo camera exposure time = " << ros_params_.exposure_time); 
   ROS_INFO_STREAM("Snapdragon::RosNodeDfs: Stereo camera gain = " << ros_params_.gain); 
   ROS_INFO_STREAM("Snapdragon::RosNodeDfs: Use GPU? = " << ros_params_.use_gpu);
