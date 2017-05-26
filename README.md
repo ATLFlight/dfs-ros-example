@@ -4,6 +4,7 @@ This repo provides the sample code and instructions to run Depth-from-Stereo (DF
 
 This example assumes that you are familiar with ROS framework.  If you are new to ROS, refer to [ROS Start Guide](http://wiki.ros.org/ROS/StartGuide) first to get started.
 
+1. [Stereo vision background](#stereo-vision-background)
 1. [High-level block diagram](#high-level-block-diagram)
 1. [Setup and build process](#setup-and-build-process)
   * [Pre-requisites](#pre-requisites)
@@ -18,6 +19,10 @@ This example assumes that you are familiar with ROS framework.  If you are new t
 1. [Run sample code](#run-sample-code)
   * [Launch DFS ROS node](#launch-dfs-ros-node)
   * [Verification](#verification)
+
+## Stereo vision background
+
+For background on the fundamentals of computer stereo vision, please see this Wikipedia entry: https://en.wikipedia.org/wiki/Computer_stereo_vision.
 
 ## High-level block diagram
 ![SnapDfsRosNodeBlockDiagram](images/SnapDfsRosNodeBlockDiagram.png)
