@@ -19,6 +19,7 @@ This example assumes that you are familiar with ROS framework.  If you are new t
 1. [Run sample code](#run-sample-code)
   * [Launch DFS ROS node](#launch-dfs-ros-node)
   * [Verification](#verification)
+1. [Achieving higher frame rates](#achieving-higher-frame-rates)
 
 ## Stereo vision background
 
@@ -214,3 +215,23 @@ When running on the GPU at VGA resolution with 32 disparity levels, you should s
 Note that in the current implementation, the depth processing blocks the getting of the next camera frame (see Snapdragon::DfsManager::DfsCamProcessingMain()). As a result, you will see the same frame rate for the raw images as for the depth images. To get raw camera frames at the full frame rate (e.g. 30 Hz) without depth images, comment out the call to mvDFS_GetDepths() and rebuild.
 
 To further verify the functionality, a ROS visualization tool like RViz can be used to view the image topics (e.g. /camera/depth/image_raw for the depth image, or /left/image_raw for the raw left stereo image).
+
+## Achieving higher frame rates
+
+Here are a few ways to increase the frame rate of DFS:
+
+* Use QVA resolution. In order to use QVGA resolution, you need a calibration file corresponding to QVGA. (The resolution is set by reading the 'size' attribute in the calibration file.) So for QVGA, set the size to 320x240, and make sure to divide the principal points and focal lengths by 2 as well.
+
+* Run in performance mode, using the provided script, setperfmode.sh.
+
+* Decrease the number of disparity levels. For 28 disparity levels, assuming narrow FOV cameras with focal length ~217, this would correspond to a closest detectable distance of 0.6 m.
+
+Here are some example performance measurements of DFS:
+
+VGA, 32 disparity levels: 2.5 Hz
+
+QVGA, 32 disparity levels: 14 Hz
+
+QVGA, 32 disparity levels, performance mode: 19 Hz
+
+QVGA, 28 disparity levels, performance mode: 22 Hz
