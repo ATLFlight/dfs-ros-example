@@ -314,9 +314,9 @@ int32_t Snapdragon::RosNodeDfs::InitCam()
   memset( &dfs_cam_config, 0, sizeof( dfs_cam_config ) ); //important!
   dfs_cam_config.stereo_config = mv_stereo_config;
   if (ros_params_.use_gpu)  // ROS param
-    dfs_cam_config.dfs_mode  = MV_MODE_GPU;
+    dfs_cam_config.dfs_mode  = MVDFS_MODE_ALG1_GPU;
   else
-    dfs_cam_config.dfs_mode  = MV_MODE_SPEED;
+    dfs_cam_config.dfs_mode  = MVDFS_MODE_ALG0_CPU;
   dfs_cam_config.max_disparity = ros_params_.max_disparity; // ROS param
   dfs_cam_config.min_disparity = ros_params_.min_disparity; // ROS param
   dfs_cam_config.camera_manager_image_format = Snapdragon::CameraManagerConfig::CAM_MAN_OUTPUT_FORMAT_8_BIT_GRAY;
