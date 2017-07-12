@@ -246,6 +246,8 @@ void Snapdragon::RosNodeDfs::Configure( const std::string& cfg_file, mvStereoCon
     config.rotation[i] = atof(next.c_str());
     i++;
    }
+   config.camera[0].memoryStride = config.camera[0].pixelWidth;
+   config.camera[1].memoryStride = config.camera[1].pixelWidth;
 }
 
 void Snapdragon::RosNodeDfs::ReadRosParams()
