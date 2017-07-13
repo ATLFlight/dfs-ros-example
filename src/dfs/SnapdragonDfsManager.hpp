@@ -47,12 +47,12 @@ public:
   struct DfsCamConfiguration
   {
     mvStereoConfiguration stereo_config;  // Configuration for stereo cameras
-    MV_MODE dfs_mode;             // whether to run on GPU or not.
+    MVDFS_MODE dfs_mode;             // whether to run on GPU or not.
     std::vector<uint16_t>dfs_masks;     // DFS mask boundaries , number of elements(4* numDFSMaskingRegions).
     int16_t max_disparity;       // Maximum disparity in pixels
     int16_t min_disparity;       // Minimum disparity in pixels
     Snapdragon::CameraManagerConfig::CameraMangerOutputFormatType camera_manager_image_format;
-    DfsCamConfiguration() : dfs_mode( MV_MODE_GPU ), max_disparity(32), min_disparity(0)
+    DfsCamConfiguration() : dfs_mode( MVDFS_MODE_ALG1_GPU ), max_disparity(32), min_disparity(0)
     {
     }
   };

@@ -9,11 +9,10 @@ This example assumes that you are familiar with ROS framework.  If you are new t
 1. [Setup and build process](#setup-and-build-process)
   * [Pre-requisites](#pre-requisites)
     * [Platform BSP](#platform-bsp)
-    * [Cross-compile build environment](#cross-compile-build-environment)
     * [Install ROS on Snapdragon platform](#install-ros-on-snapdragon-platform)
+    * [Install additional dependency](#install-additional-dependency)
     * [Install Snapdragon Machine Vision SDK](#install-snapdragon-machine-vision-sdk)
     * [Install Machine Vision SDK license](#install-machine-vision-sdk-license)
-    * [Install additional dependency](#install-additional-dependency)
   * [Clone and build sample code](#clone-and-build-sample-code)
   * [Create stereo calibration file](#create-stereo-calibration-file)
 1. [Run sample code](#run-sample-code)
@@ -36,7 +35,7 @@ The current build process is supported only on-target (i.e. on the Snapdragon Fl
 
 #### Platform BSP
 
-These instructions were tested with version **Flight_3.1.2**. The latest version of the software can be downloaded from [here](http://support.intrinsyc.com/projects/snapdragon-flight/files) and  installed by following the instructions found [here](http://support.intrinsyc.com/projects/snapdragon-flight/wiki)
+These instructions were tested with version **Flight_3.1.3.1**. The latest version of the software can be downloaded from [here](http://support.intrinsyc.com/projects/snapdragon-flight/files) and installed by following the instructions found [here](http://support.intrinsyc.com/projects/snapdragon-flight/wiki)
 
 **NOTE**: By default the HOME environment variable is not set.  Set this up doing the following:
 
@@ -54,36 +53,26 @@ adb shell
 source /home/linaro/.bashrc
 ```
 
-#### Cross-compile build environment
-
-Get the latest Snapdragon Flight<sup>TM</sup> qrlSDK for your Ubuntu 14.04 host computer by following the instructions [here](https://github.com/ATLFlight/ATLFlightDocs/blob/master/AppsGettingStarted.md)
-
-**NOTE**: For this example, you will need the qrlSDK to get the missing files on to the target (see below).  
-
-
-  1. Platform build setup for camera headers
-
-    **NOTE**: For on-target camera development there are few header files missing on the target, but are part of the qrlSDK.  To fix this, the missing files need to be pushed on to the target.
-    This is an interim solution and will be addressed in future releases.
-
-    Push the following missing files to the target:
-
-```
-cd <sdk_root_install_path>/sysroots/eagle8074/usr/include
-adb push camera.h /usr/include
-adb push camera_parameters.h /usr/include 
-adb shell sync
-```
-
 #### Install ROS on Snapdragon Platform
 
 Refer to the following [page](https://github.com/ATLFlight/ATLFlightDocs/blob/master/SnapdragonROSInstallation.md) for ROS installation on Snapdragon Flight<sup>TM</sup> platform.
 
+#### Install additional dependency
+
+The ROS node uses tinyxml2 to parse the stereo calibration xml file.
+
+Install the library on target using the following command (make sure you are in station mode so you have internet access):
+
+```
+adb shell
+apt-get install -y libtinyxml2-dev
+```
+
 #### Install Snapdragon Machine Vision SDK
 
-* These instructions were tested with version **mv0.9.1**. Download the Snapdragon Machine Vision SDK from [here](https://developer.qualcomm.com/sdflight-tools)
+* These instructions were tested with version **mv1.0.2**. Download the Snapdragon Machine Vision SDK from [here](https://developer.qualcomm.com/hardware/snapdragon-flight/machine-vision-sdk)
 * The package name will be mv\<version\>.deb.  
-** Example: *mv0.9.1_8x74.deb*
+** Example: *mv_1.0.2_8x74.deb*
 * push the deb package to the target and install it.
 
 ```
@@ -106,34 +95,7 @@ adb push snapdragon-flight-license.bin /usr/lib
 adb shell sync
 ```
 
-#### Install additional dependency
-
-The ROS node uses tinyxml2 to parse the stereo calibration xml file.
-
-Install the library on target using the following command:
-
-```
-adb shell
-apt-get install -y libtinyxml2-dev
-```
-
-
 ### Clone and build sample code
-
-#### Set up ROS workspace on target
-
-```
-adb shell
-source /home/linaro/.bashrc
-mkdir -p /home/linaro/ros_ws/src
-cd /home/linaro/ros_ws/src
-catkin_init_workspace
-cd ../
-catkin_make
-echo "source /home/linaro/ros_ws/devel/setup.bash" >> /home/linaro/.bashrc
-```
-
-This ensures that the ROS workspace is setup correctly.
 
 #### Clone the sample code
 * The repo may be cloned from here directly on the target, or cloned on the host computer and then pushed to the target using ADB. The recommended method is to clone directly on the target.
