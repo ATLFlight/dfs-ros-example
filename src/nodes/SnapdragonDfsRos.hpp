@@ -34,25 +34,28 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <signal.h>
 #include <stdbool.h>
 #include <syslog.h>
 #include <unistd.h>
-#include "SnapdragonCameraManager.hpp"
 #include "SnapdragonDfsManager.hpp"
-#include "SnapdragonRosStereoCamParams.hpp"
+#include "SnapdragonDfsRosParams.hpp"
 
 #include <ros/ros.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <sensor_msgs/PointCloud.h>
 #include <sensor_msgs/image_encodings.h>
+#include <sensor_msgs/ChannelFloat32.h>
 #include <stereo_msgs/DisparityImage.h>
 #include <geometry_msgs/TransformStamped.h>
+#include <geometry_msgs/Point32.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/time_synchronizer.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_ros/transform_broadcaster.h>
-
-#include "tinyxml2.h"
 
 #include <time.h>
 #include <boost/filesystem.hpp>
@@ -60,64 +63,67 @@
 #include <string.h>
 
 namespace Snapdragon {
-  class RosNodeDfs;
+  class DfsRosNode;
 }
 
-class Snapdragon::RosNodeDfs
+class Snapdragon::DfsRosNode
 {
 public:
 
-  RosNodeDfs( ros::NodeHandle nh );
+  DfsRosNode( ros::NodeHandle nh, ros::NodeHandle pnh );
 
-  ~RosNodeDfs();
+  ~DfsRosNode();
 
   void ReadRosParams();
        
   void PrintRosParams();
-
-  int32_t InitCam();
-
+  
+  void PrintMvStereoConfig(mvStereoConfiguration config);
+  
   int32_t Initialize();
   
-  void SpinOnce();
+  int32_t InitDfs(const sensor_msgs::CameraInfoConstPtr& cam_info_l,
+                  const sensor_msgs::CameraInfoConstPtr& cam_info_r);
+
+  void CameraCallback(const sensor_msgs::ImageConstPtr& image_l,
+                    const sensor_msgs::CameraInfoConstPtr& cam_info_l,
+                    const sensor_msgs::ImageConstPtr& image_r,
+                    const sensor_msgs::CameraInfoConstPtr& cam_info_r);
   
+  void DepthCallback(const sensor_msgs::ImageConstPtr& image_d,
+                    const sensor_msgs::CameraInfoConstPtr& cam_info_d);
+
   void Shutdown();
 
 private:
 
-  //class methods
-  
-  std::vector<std::string> SplitString( const std::string& input );
-    
-  void ParseCameraParams ( const tinyxml2::XMLElement* camera_config_element, mvCameraConfiguration& camera_param_values );
+  bool initialized_;
 
-  void Configure( const std::string& cfg_file, mvStereoConfiguration& config );
-
-  // data members
-  
   ros::NodeHandle nh_;
+  ros::NodeHandle pnh_;
   std_msgs::Header header_; 
-  sensor_msgs::CameraInfo depth_info_;
-  sensor_msgs::Image image_l_;  
-  sensor_msgs::Image image_r_;  
-  sensor_msgs::CameraInfo info_l_;
-  sensor_msgs::CameraInfo info_r_;
-  tf2_ros::TransformBroadcaster tf_pub_;
-  geometry_msgs::TransformStamped transform_stereo_;
   stereo_msgs::DisparityImagePtr disp_msg_;
   sensor_msgs::ImagePtr depth_msg_;
+  sensor_msgs::CameraInfo depth_info_;
+  geometry_msgs::TransformStamped transform_stereo_;
+  tf2_ros::TransformBroadcaster tf_pub_;
+ 
+  message_filters::Subscriber<sensor_msgs::Image>* image_sub_l_;
+  message_filters::Subscriber<sensor_msgs::CameraInfo>* info_sub_l_;
+  message_filters::Subscriber<sensor_msgs::Image>* image_sub_r_;
+  message_filters::Subscriber<sensor_msgs::CameraInfo>* info_sub_r_;
+  message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo, sensor_msgs::Image, sensor_msgs::CameraInfo>* sync_;
+  message_filters::Subscriber<sensor_msgs::Image>* image_sub_d_;
+  message_filters::Subscriber<sensor_msgs::CameraInfo>* info_sub_d_;
+  message_filters::TimeSynchronizer<sensor_msgs::Image, sensor_msgs::CameraInfo>* sync_depth_;
 
-  ros::Publisher pub_image_l_;
-  ros::Publisher pub_info_l_;
-  ros::Publisher pub_image_r_;
-  ros::Publisher pub_info_r_;
   ros::Publisher pub_disparity_;
-  ros::Publisher pub_depth_;
+  ros::Publisher pub_depth_image_;
   ros::Publisher pub_depth_info_;
+  ros::Publisher pub_point_cloud_;
   
   int32_t height_, width_;
-  Snapdragon::CameraManager* camera_manager_;
   Snapdragon::DfsManager* dfs_manager_;
-  Snapdragon::RosStereoCamParams ros_params_;
+  Snapdragon::DfsRosParams ros_params_;
 
 };

@@ -1,0 +1,7 @@
+<library path="lib/libsnap_dfs_nodelet">
+  <class name="snap_dfs/dfs_node" type="snap_dfs::DfsNodelet" base_class_type="nodelet::Nodelet">
+    <description> 
+      Snapdragon DFS nodelet.
+    </description>
+  </class>
+</library>

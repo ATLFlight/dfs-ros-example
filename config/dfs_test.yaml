@@ -31,9 +31,6 @@
 # *
 # ****************************************************************************/
 
-frame_rate: 30
-exposure_time: 0.16
-gain: 0.2
 use_gpu: true
 max_disparity: 32
 min_disparity: 0

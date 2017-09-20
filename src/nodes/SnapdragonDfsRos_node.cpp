@@ -30,64 +30,26 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#pragma once
 
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <mvDFS.h>
+#include "SnapdragonDfsRos.hpp"
 
-namespace Snapdragon {
-  class DfsManager;
-}
+#include <ros/ros.h>
 
-class Snapdragon::DfsManager
-{
-public:
-  struct DfsCamConfiguration
-  {
-    mvStereoConfiguration stereo_config;  // Configuration for stereo cameras
-    MVDFS_MODE dfs_mode;             // whether to run on GPU or not.
-    std::vector<uint16_t>dfs_masks;     // DFS mask boundaries , number of elements(4* numDFSMaskingRegions).
-    int16_t max_disparity;       // Maximum disparity in pixels
-    int16_t min_disparity;       // Minimum disparity in pixels
-    DfsCamConfiguration() : dfs_mode( MVDFS_MODE_ALG1_GPU ), max_disparity(32), min_disparity(0)
-    {
-    }
-  };
+int main( int32_t argc, char** argv ) {
+ 
+  ros::init(argc, argv, "snap_dfs");
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
 
-  DfsManager();
-  virtual ~DfsManager();
+  Snapdragon::DfsRosNode dfs_node(nh, pnh);
 
-  /* intializes the DfsManager with appropriate config */
-  bool Init( DfsCamConfiguration* dfs_cam_config, int32_t height, int32_t width );
-
-  /* de intializes the DfsManager */
-  bool Deinit();
-
-  /* starts DfsManager processing */
-  bool Start();
-
-  /* stops DfsManager processing */
-  bool Stop();
+  dfs_node.Initialize();
   
-  /* does the main function calls to get the disparity and depth images */
-  void Process(const uint8_t* cur_frame_buffer_l, const uint8_t* cur_frame_buffer_r);
+  while(ros::ok()) {
 
-  /* get the current frame buffers */
-  uint16_t* GetCurDisparity() {return disparity_;}
-  float32_t* GetCurInvDepth() {return inv_depth_;}
-  DfsCamConfiguration GetDfsCamConfig() {return dfs_cam_config_;}
-  mvCameraConfiguration GetDepthCamera() {return depth_camera_;}
-   
-  mvDFS* mv_dfs_ptr_;
-  bool initialized_;
+    ros::spinOnce();
 
-private:
+  }
 
-  uint16_t* disparity_;
-  float32_t* inv_depth_;
-  DfsCamConfiguration dfs_cam_config_;
-  mvCameraConfiguration depth_camera_;
-   
-};
+  return 0;
+}

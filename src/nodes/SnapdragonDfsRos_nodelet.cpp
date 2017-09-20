@@ -30,64 +30,48 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *
  ****************************************************************************/
-#pragma once
 
-#include <iostream>
-#include <thread>
-#include <vector>
-#include <mvDFS.h>
+#include <ros/ros.h>
+#include <pluginlib/class_list_macros.h>
+#include <nodelet/nodelet.h>
 
-namespace Snapdragon {
-  class DfsManager;
-}
+#include "SnapdragonDfsRos.hpp"
 
-class Snapdragon::DfsManager
-{
-public:
-  struct DfsCamConfiguration
-  {
-    mvStereoConfiguration stereo_config;  // Configuration for stereo cameras
-    MVDFS_MODE dfs_mode;             // whether to run on GPU or not.
-    std::vector<uint16_t>dfs_masks;     // DFS mask boundaries , number of elements(4* numDFSMaskingRegions).
-    int16_t max_disparity;       // Maximum disparity in pixels
-    int16_t min_disparity;       // Minimum disparity in pixels
-    DfsCamConfiguration() : dfs_mode( MVDFS_MODE_ALG1_GPU ), max_disparity(32), min_disparity(0)
-    {
-    }
+namespace snap_dfs {
+  
+  class DfsNodelet : public nodelet::Nodelet {
+  
+  public:
+    DfsNodelet() : running_(false) {}
+    ~DfsNodelet();
+
+  private:
+    virtual void onInit();
+    volatile bool running_;
+    boost::shared_ptr<Snapdragon::DfsRosNode> dfs_node_;
   };
 
-  DfsManager();
-  virtual ~DfsManager();
+  DfsNodelet::~DfsNodelet() {
+    if (running_) {
+      dfs_node_->Shutdown();
+    }
+  }  
 
-  /* intializes the DfsManager with appropriate config */
-  bool Init( DfsCamConfiguration* dfs_cam_config, int32_t height, int32_t width );
+  void DfsNodelet::onInit() {
+    ros::NodeHandle nh(getNodeHandle());
+    ros::NodeHandle pnh(getPrivateNodeHandle());
+    dfs_node_.reset(new Snapdragon::DfsRosNode(nh, pnh));
+    if (!dfs_node_->Initialize()) {
+      running_ = true;
+    } else {
+      NODELET_ERROR("snap_dfs::DfsNodelet: Error starting DFS");
+      dfs_node_.reset();
+    }
+  }
 
-  /* de intializes the DfsManager */
-  bool Deinit();
-
-  /* starts DfsManager processing */
-  bool Start();
-
-  /* stops DfsManager processing */
-  bool Stop();
-  
-  /* does the main function calls to get the disparity and depth images */
-  void Process(const uint8_t* cur_frame_buffer_l, const uint8_t* cur_frame_buffer_r);
-
-  /* get the current frame buffers */
-  uint16_t* GetCurDisparity() {return disparity_;}
-  float32_t* GetCurInvDepth() {return inv_depth_;}
-  DfsCamConfiguration GetDfsCamConfig() {return dfs_cam_config_;}
-  mvCameraConfiguration GetDepthCamera() {return depth_camera_;}
-   
-  mvDFS* mv_dfs_ptr_;
-  bool initialized_;
-
-private:
-
-  uint16_t* disparity_;
-  float32_t* inv_depth_;
-  DfsCamConfiguration dfs_cam_config_;
-  mvCameraConfiguration depth_camera_;
-   
 };
+
+// Register this plugin with pluginlib.
+//
+// parameters are: package, class name, class type, base class type
+PLUGINLIB_DECLARE_CLASS(snap_dfs, dfs_node, snap_dfs::DfsNodelet, nodelet::Nodelet);

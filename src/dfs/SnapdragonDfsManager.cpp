@@ -33,29 +33,22 @@
 
 #include "SnapdragonDfsManager.hpp"
 #include <math.h>
+#include <string.h>
 
 Snapdragon::DfsManager::DfsManager()
 {
   mv_dfs_ptr_ = NULL;
-  camera_manager_ptr_ = NULL;
   disparity_ = NULL;
   inv_depth_ = NULL;
   initialized_ = false;
-  dfs_cam_config_.camera_manager_image_format = Snapdragon::CameraManagerConfig::CAM_MAN_OUTPUT_FORMAT_8_BIT_GRAY;
-  cur_timestamp_ = 0;
 }
 
 Snapdragon::DfsManager::~DfsManager()
 {
 }
 
-bool Snapdragon::DfsManager::Init( Snapdragon::CameraManager* camera_manager, DfsCamConfiguration* dfs_cam_config )
+bool Snapdragon::DfsManager::Init( DfsCamConfiguration* dfs_cam_config, int32_t height, int32_t width )
 {
-  if( camera_manager == NULL )
-  {  
-    std::cout << "Snapdragon::DfsManager, ERR, camera manager is NULL " << std::endl;
-    return false;
-  }
 
   if( dfs_cam_config == NULL )
   {  
@@ -65,10 +58,8 @@ bool Snapdragon::DfsManager::Init( Snapdragon::CameraManager* camera_manager, Df
   
   if( !initialized_ )
   {
-    camera_manager_ptr_ = camera_manager;
-
-    auto num_pixels = camera_manager_ptr_->GetCameraConfig().p_size_[0] * camera_manager_ptr_->GetCameraConfig().p_size_[1];
-
+    auto num_pixels = height * width;
+    
     // compute disparity and depth
     disparity_ = new uint16_t[num_pixels];
     if( disparity_ == NULL )
@@ -102,17 +93,6 @@ bool Snapdragon::DfsManager::Init( Snapdragon::CameraManager* camera_manager, Df
     initialized_ = true;
   }
 
-  n_bytes_ = camera_manager_ptr_->GetCameraConfig().p_size_[0] * camera_manager_ptr_->GetCameraConfig().p_size_[1];
-  cur_frame_buffer_l_ = new unsigned char[n_bytes_ * 2]; /* n_bytes_ * 2 : to account for 16 bit pixel when needed */
-  cur_frame_buffer_r_ = new unsigned char[n_bytes_ * 2];
-  if (!cur_frame_buffer_l_ || !cur_frame_buffer_r_) {
-    std::cout << "Snapdragon::DfsManager, ERR, failed to allocate memory for current frame buffers " << std::endl;
-    return false;
-  }
-
-  cur_frame_id_ = 0;
-  min_frame_id_=-1;
-
   return initialized_;
 }
 
@@ -123,24 +103,14 @@ bool Snapdragon::DfsManager::Deinit()
     delete[] disparity_;
   if( inv_depth_ )
     delete[] inv_depth_;
-  if( cur_frame_buffer_l_ )
-    delete[] cur_frame_buffer_l_;
-  if( cur_frame_buffer_r_ )
-    delete[] cur_frame_buffer_r_;
   return true;
 }
 
-void Snapdragon::DfsManager::DfsCamProcessingMain()
+void Snapdragon::DfsManager::Process(const uint8_t* cur_frame_buffer_l, const uint8_t* cur_frame_buffer_r)
 {
   if (!initialized_) {
     std::cout << "Snapdragon::DfsManager, ERR, tried to call DfsCamProcessingMain, but DfsManager is not initialized " << std::endl;
     return;
   }
-  cur_frame_id_ = camera_manager_ptr_->GetNextFrame(min_frame_id_, &cur_timestamp_, cur_frame_buffer_l_, cur_frame_buffer_r_, Snapdragon::CameraManagerConfig::CAM_MAN_OUTPUT_FORMAT_8_BIT_GRAY);
-  if( cur_frame_id_ == -1 )
-  {
-    std::cout << "Snapdragon::DfsManager, ERR, error getting next frame from camera manager " << std::endl;
-  }
-  mvDFS_GetDepths( mv_dfs_ptr_, cur_frame_buffer_l_, cur_frame_buffer_r_, 0, nullptr, dfs_cam_config_.min_disparity, dfs_cam_config_.max_disparity, disparity_, inv_depth_ );
-  min_frame_id_ = cur_frame_id_;
+  mvDFS_GetDepths( mv_dfs_ptr_, cur_frame_buffer_l, cur_frame_buffer_r, 0, nullptr, dfs_cam_config_.min_disparity, dfs_cam_config_.max_disparity, disparity_, inv_depth_ );
 }

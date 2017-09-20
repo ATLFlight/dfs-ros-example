@@ -35,19 +35,25 @@
 
 <launch>
 
-  <!-- ============== load parameters =============== -->
-  
-  <arg name="param_filename" default="dfs_test.yaml"/>
-
   <!-- ============== arg declarations =============== -->
-
-  <arg name="config_filename"/>
-
-  <node pkg="snap_dfs" name="snap_dfs" type="snap_dfs_node" cwd="node" output="screen" respawn="false">
-    <rosparam command="load" file="$(find snap_dfs)/config/$(arg param_filename)" />
-    <param name="config_filename" value="$(arg config_filename)" />
-    <param name="camera_frame_id" value="camera_link" />
-    <remap from="mv_depth" to="/camera/depth/image_raw"/>
-  </node>
+  
+  <arg name="param_filename" default="$(find snap_dfs)/config/dfs_test.yaml"/>
+  <arg name="namespace_name" default="stereo"/>
+  <arg name="camera_number" default="3"/>
+  
+  <!-- ============== nodes =============== -->
+  
+  <include file="$(find snap_cam_ros)/launch/stereo.launch">
+    <arg name="namespace_name" value="$(arg namespace_name)"/>
+    <arg name="camera_number" value="$(arg camera_number)"/>
+    <arg name="width" value="640"/>
+    <arg name="height" value="480"/>
+    <arg name="skip_n_frames" value="0"/>
+  </include>
+  
+  <include file="$(find snap_dfs)/launch/dfs_node.launch">
+    <arg name="param_filename" value="$(arg param_filename)"/>
+    <arg name="namespace_name" value="$(arg namespace_name)"/>
+  </include>
 
 </launch>

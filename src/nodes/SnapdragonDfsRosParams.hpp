@@ -39,19 +39,8 @@ namespace Snapdragon {
   * Data structure for storing camera and DFS parameters that are read from the ROS parameter server
   */
 
-  struct RosStereoCamParams
+  struct DfsRosParams
   {
-    // stereo calibration file (full path)
-    std::string filename;
-
-    // frame rate of cameras (valid values: 30, 60, 90)
-    int32_t frame_rate;
-
-    // exposure time of cameras
-    float exposure_time;
-    
-    // gain of cameras
-    float gain;
 
     // 1=>GPU, 0=>CPU
     bool use_gpu;
@@ -63,7 +52,7 @@ namespace Snapdragon {
     int32_t min_disparity;
 
     // Width (in pixels) of border to crop from depth map
-    int32_t chop;
+    int32_t crop;
    
     // frame ID for ROS images
     std::string frame_id; 

@@ -34,85 +34,62 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(snap_dfs)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   tf2
   tf2_ros
+  nodelet
+  sensor_msgs
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -v -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -v -pthread -fPIC")
 
-if(NOT DEFINED mv_INCLUDE_DIRS)
-    set(mv_INCLUDE_DIRS "/usr/include")
+if(NOT DEFINED MV_INCLUDE)
+    set(MV_INCLUDE "/usr/include")
 endif()
-if(NOT DEFINED mv_LINK_DIRS)
-    set(mv_LINK_DIRS "/usr/lib")
+if(NOT DEFINED MV_LIB)
+    set(MV_LIB "/usr/lib")
 endif()
-message(STATUS "mv_INCLUDE_DIRS: ${mv_INCLUDE_DIRS}")
-message(STATUS "mv_LINK_DIRS: ${mv_LINK_DIRS}")
+message(STATUS "MV_INCLUDE: ${MV_INCLUDE}")
+message(STATUS "MV_LIB: ${MV_LIB}")
 
 link_directories(
-    ${mv_LINK_DIRS}
+    ${MV_LIB}
 )
 
-###################################
-## catkin specific configuration ##
-###################################
-## The catkin_package macro generates cmake config files for your package
-## Declare things to be passed to dependent projects
-## INCLUDE_DIRS: uncomment this if you package contains header files
-## LIBRARIES: libraries you create in this project that dependent projects also need
-## CATKIN_DEPENDS: catkin_packages dependent projects also need
-## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES snap_dfs
-#  CATKIN_DEPENDS roscpp
-#  DEPENDS system_lib
+  CATKIN_DEPENDS roscpp nodelet sensor_msgs
+  LIBRARIES snap_dfs_nodelet
 )
 
-###########
-## Build ##
-###########
-
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-#include_directories(include)
 include_directories(
    ${catkin_INCLUDE_DIRS}
-   ${mv_INCLUDE_DIRS}
+   ${MV_INCLUDE}
 )
 
-## Declare a C++ library
-add_library(snap_dfs_lib
-  src/camera/SnapdragonCameraManager.cpp
+add_library(snap_dfs
   src/dfs/SnapdragonDfsManager.cpp
 )
-
-## Declare a C++ executable
-add_executable(snap_dfs_node src/nodes/SnapdragonRosNodeDfs_main.cpp src/nodes/SnapdragonRosNodeDfs.cpp)
-
-target_include_directories(snap_dfs_lib PUBLIC 
-  src/camera
+target_include_directories(snap_dfs PUBLIC
   src/dfs
-  ${mv_INCLUDE_DIRS}/mv/
+  ${MV_INCLUDE}/mv/
+)
+target_link_libraries(snap_dfs
+  mv1
 )
 
-## Add cmake target dependencies of the executable/library
-## as an example, message headers may need to be generated before nodes
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(snap_dfs_node
-  snap_dfs_lib
-  mv1
-  camera
-  tinyxml2
+add_library(snap_dfs_nodelet src/nodes/SnapdragonDfsRos_nodelet.cpp src/nodes/SnapdragonDfsRos.cpp)
+target_link_libraries(snap_dfs_nodelet
+  snap_dfs
   ${catkin_LIBRARIES}
 )
+target_include_directories( snap_dfs_nodelet PRIVATE src/nodes/ )
 
+add_executable(snap_dfs_node src/nodes/SnapdragonDfsRos_node.cpp src/nodes/SnapdragonDfsRos.cpp)
+target_link_libraries(snap_dfs_node
+  snap_dfs
+  ${catkin_LIBRARIES}
+)
 target_include_directories( snap_dfs_node PRIVATE src/nodes/ )
 
 add_custom_command(
@@ -122,15 +99,7 @@ COMMAND sudo chown root ${CATKIN_DEVEL_PREFIX}/lib/snap_dfs/snap_dfs_node
 COMMAND sudo chmod +s ${CATKIN_DEVEL_PREFIX}/lib/snap_dfs/snap_dfs_node
 )
 
-#############
-## Install ##
-#############
-
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
-
-## Mark executables and/or libraries for installation
-install(TARGETS snap_dfs_node snap_dfs_lib
+install(TARGETS snap_dfs_node snap_dfs snap_dfs_nodelet
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -141,4 +110,7 @@ install(DIRECTORY launch/
 
 install(DIRECTORY config/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+)
+install(FILES snap_dfs_nodelet.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
