@@ -68,18 +68,30 @@ void Snapdragon::DfsRosNode::PrintMvStereoConfig(mvStereoConfiguration config)
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, left, principal point: [ " << config.camera[0].principalPoint[0] << ", " << config.camera[0].principalPoint[1] << " ]");
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, left, focal length: [ " << config.camera[0].focalLength[0] << ", " << config.camera[0].focalLength[1] << " ]");
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, left, distortion model: " << config.camera[0].distortionModel);
-  ROS_INFO("Snapdragon::DfsRosNode: mvStereoConfig, left, distortion coefficients: [ ");
-  for (int32_t i=0; i<config.camera[0].distortionModel; i++) {ROS_INFO("%f , ", config.camera[0].distortion[i]);}
-  ROS_INFO(" ] \n");
+  ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, left, distortion coefficients: [ " << 
+    config.camera[0].distortion[0] << " " << 
+    config.camera[0].distortion[1] << " " << 
+    config.camera[0].distortion[2] << " " << 
+    config.camera[0].distortion[3] << " " << 
+    config.camera[0].distortion[4] << " " << 
+    config.camera[0].distortion[5] << " " << 
+    config.camera[0].distortion[6] << " " << 
+    config.camera[0].distortion[7] << "]");
     
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, right, width x height: " << config.camera[1].pixelWidth << " x " << config.camera[1].pixelHeight);
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, right, principal points: [ " << config.camera[1].principalPoint[0] << ", " << config.camera[1].principalPoint[1] << " ]");
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, right, focal length: [ " << config.camera[1].focalLength[0] << ", " << config.camera[1].focalLength[1] << " ]");
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, right, distortion model: " << config.camera[1].distortionModel);
-  ROS_INFO("Snapdragon::DfsRosNode: mvStereoConfig, right, distortion coefficients: [ ");
-  for (int32_t i=0; i<config.camera[1].distortionModel; i++) {ROS_INFO("%f , ", config.camera[1].distortion[i]);}
-  ROS_INFO(" ] \n");
-
+  ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, right, distortion coefficients: [ " << 
+    config.camera[1].distortion[0] << " " << 
+    config.camera[1].distortion[1] << " " << 
+    config.camera[1].distortion[2] << " " << 
+    config.camera[1].distortion[3] << " " << 
+    config.camera[1].distortion[4] << " " << 
+    config.camera[1].distortion[5] << " " << 
+    config.camera[1].distortion[6] << " " << 
+    config.camera[1].distortion[7] << "]");
+  
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, extrinsic, translation: [ " << config.translation[0] << ", " << config.translation[1] << ", " << config.translation[2] << " ]");
   ROS_INFO_STREAM("Snapdragon::DfsRosNode: mvStereoConfig, extrinsic, rotation: [ " << config.rotation[0] << ", " << config.rotation[1] << ", " << config.rotation[2] << " ]");
 }
@@ -106,6 +118,7 @@ int32_t Snapdragon::DfsRosNode::InitDfs(const sensor_msgs::CameraInfoConstPtr& c
     }
   }
   mv_stereo_config.camera[0].distortionModel = num_distortion_params_l;
+
  
   // right camera parameters
   mv_stereo_config.camera[1].pixelWidth = cam_info_r->width;
@@ -123,6 +136,9 @@ int32_t Snapdragon::DfsRosNode::InitDfs(const sensor_msgs::CameraInfoConstPtr& c
   }
   mv_stereo_config.camera[1].distortionModel = num_distortion_params_r;
 
+  mv_stereo_config.camera[0].memoryStride = mv_stereo_config.camera[0].pixelWidth;
+  mv_stereo_config.camera[1].memoryStride = mv_stereo_config.camera[1].pixelWidth;
+  
   // extrinsic parameters
   tf2::Matrix3x3 R_r(cam_info_r->R[0],cam_info_r->R[1],cam_info_r->R[2],cam_info_r->R[3],cam_info_r->R[4],cam_info_r->R[5],cam_info_r->R[6],cam_info_r->R[7],cam_info_r->R[8]);
   tf2::Matrix3x3 K_prime(cam_info_r->P[0],cam_info_r->P[1],cam_info_r->P[2],cam_info_r->P[4],cam_info_r->P[5],cam_info_r->P[6],cam_info_r->P[8],cam_info_r->P[9],cam_info_r->P[10]);
@@ -138,21 +154,28 @@ int32_t Snapdragon::DfsRosNode::InitDfs(const sensor_msgs::CameraInfoConstPtr& c
   
   // convert to scaled axis angle format for mvlib
   float32_t angle = acos(( rotation_axis_angle[0][0] + rotation_axis_angle[1][1] + rotation_axis_angle[2][2] - 1.0)/2.0);
-  float32_t x = (rotation_axis_angle[2][1] - rotation_axis_angle[1][2])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
-                                 +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
-                                 +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
-  float32_t y = (rotation_axis_angle[0][2] - rotation_axis_angle[2][0])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
-                                 +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
-                                 +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
-  float32_t z = (rotation_axis_angle[1][0] - rotation_axis_angle[0][1])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
-                                 +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
-                                 +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
-  tf2::Vector3 rotation_scaled_axis_angle(x*angle, y*angle, z*angle);
+  
+  if (angle==0) // if no rotation (may be the case for simulation)
+    for (int32_t i=0; i<3; i++) {
+      mv_stereo_config.rotation[i] = 0.0;
+    }
+  else {
+    float32_t x = (rotation_axis_angle[2][1] - rotation_axis_angle[1][2])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
+                                   +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
+                                   +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
+    float32_t y = (rotation_axis_angle[0][2] - rotation_axis_angle[2][0])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
+                                   +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
+                                   +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
+    float32_t z = (rotation_axis_angle[1][0] - rotation_axis_angle[0][1])/sqrt(pow((rotation_axis_angle[2][1] - rotation_axis_angle[1][2]),2)
+                                   +pow((rotation_axis_angle[0][2] - rotation_axis_angle[2][0]),2)
+                                   +pow((rotation_axis_angle[1][0] - rotation_axis_angle[0][1]),2));
+    tf2::Vector3 rotation_scaled_axis_angle(x*angle, y*angle, z*angle);
 
-  for (int32_t i=0; i<3; i++) {
-    mv_stereo_config.rotation[i] = rotation_scaled_axis_angle[i];
+    for (int32_t i=0; i<3; i++) {
+      mv_stereo_config.rotation[i] = rotation_scaled_axis_angle[i];
+    }
   }
- 
+
   PrintMvStereoConfig(mv_stereo_config);
  
   // configure DFS cam module
