@@ -14,7 +14,7 @@ This example assumes that you are familiar with ROS framework.  If you are new t
         * [Install Machine Vision SDK license](#install-machine-vision-sdk-license)
     * [Clone and build sample code](#clone-and-build-sample-code)
     * [Set up the image publisher](#set-up-the-image-publisher)
-    * [Create stereo calibration file](#create-stereo-calibration-file)
+    * [Calibrate the stereo cameras](#calibrate-the-stereo-cameras)
 1. [Run sample code](#run-sample-code)
     * [Launch DFS ROS node](#launch-dfs-ros-node)
     * [Verification](#verification)
