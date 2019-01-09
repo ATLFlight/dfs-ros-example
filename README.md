@@ -8,6 +8,7 @@ This example assumes that you are familiar with ROS framework.  If you are new t
 1. [High-level block diagram](#high-level-block-diagram)
 1. [Setup and build process](#setup-and-build-process)
     * [Pre-requisites](#pre-requisites)
+        * [Building for QFLight Pro](#building-for-qflight-pro)
         * [Platform BSP](#platform-bsp)
         * [Install ROS on Snapdragon platform](#install-ros-on-snapdragon-platform)
         * [Install Snapdragon Machine Vision SDK](#install-snapdragon-machine-vision-sdk)
@@ -32,6 +33,13 @@ For background on the fundamentals of computer stereo vision, please see this Wi
 Currently, only on-target (i.e. on the Snapdragon Flight<sup>TM</sup> Board) building is supported.
 
 ### Pre-requisites
+
+#### Building for QFLight Pro
+If you are using a QFlight Pro board (8096), you will build the code inside your development docker.  Instructions can be found here:
+
+[QFlight Pro Buildi Instructions](https://github.com/ATLFlight/QFlightProDocs/blob/master/RosSoftware.md)
+
+After building and installing, you can skip to [Run sample code](#run-sample-code).
 
 #### Platform BSP
 
